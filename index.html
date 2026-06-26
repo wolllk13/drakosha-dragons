@@ -4,19 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Chakipaki — Dragons</title>
-<link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Chakipaki">
 <meta name="theme-color" content="#160f33">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;}
-body{font-family:'Fredoka',system-ui,sans-serif;background:radial-gradient(120% 90% at 50% 0%,#2a1b54,#1a1442 55%,#160f33);
-  display:flex;align-items:center;justify-content:center;min-height:100%;padding:14px;color:#fff;overflow:hidden;}
-#app{position:relative;width:100%;max-width:380px;border-radius:22px;overflow:hidden;box-shadow:0 18px 48px rgba(0,0,0,.45),0 0 0 1px rgba(127,240,216,.12);}
-canvas{display:block;width:100%;background:#1a1442;}
+body{font-family:'Fredoka',system-ui,sans-serif;background:#160f33;
+  display:block;color:#fff;overflow:hidden;margin:0;padding:0;}
+#app{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;border-radius:0;overflow:hidden;}
+canvas{display:block;width:100%;height:100%;background:#1a1442;}
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;background:rgba(12,14,38,.66);backdrop-filter:blur(2px);}
 .hidden{display:none!important;}
 .pad{padding:22px;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;flex:1;}
@@ -187,7 +189,8 @@ const SPECIES=[
 function speciesIdxFor(L){ return Math.min(SPECIES.length-1, Math.floor((L-1)/14)); }
 
 /* ---------- dom ---------- */
-const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),W=360,H=600;
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');let W=360,H=600;
+function fitCanvas(){const dpr=Math.min(window.devicePixelRatio||1,2.5);const w=cv.clientWidth||window.innerWidth,h=cv.clientHeight||window.innerHeight;cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);W=w;H=h;}
 const sAuth=document.getElementById('sAuth'),sHome=document.getElementById('sHome'),sShop=document.getElementById('sShop'),sAlbum=document.getElementById('sAlbum'),sRes=document.getElementById('sRes'),hud=document.getElementById('hud');
 let player=null;
 
@@ -540,6 +543,9 @@ document.getElementById('instAndroid').addEventListener('click',()=>drawInstall(
 document.getElementById('instBack').addEventListener('click',renderHome);
 
 async function init(){
+  fitCanvas();
+  window.addEventListener('resize',()=>{fitCanvas();makeStars();});
+  window.addEventListener('orientationchange',()=>{setTimeout(()=>{fitCanvas();makeStars();},200);});
   gates=[];coins=[];particles=[];fires=[];hero=null;boss=null;tick=0;shake=0;banner=0;speed=0;runCoins=0;gatesPassed=0;bossTime=0;
   makeStars();cfg=levelCfg(1);last=performance.now();raf=requestAnimationFrame(loop);
   const ln=await store.get(LAST);
