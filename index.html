@@ -86,6 +86,7 @@ input::placeholder{color:rgba(255,255,255,.4);font-weight:400;}
       <div class="map" id="map"></div>
       <div class="pool-note">★ Недельный призовой фонд для топа таблицы — в Telegram-версии</div>
       <div class="home-foot">
+        <button class="btn btn-main" id="openInstall" style="min-width:100%;">📲 Установить на телефон</button>
         <button class="btn btn-gold" id="openAlbum">Альбом драконов</button>
         <button class="btn btn-gold" id="openShop">Магазин скинов</button>
         <button class="btn btn-ghost" id="switchP">Сменить игрока</button>
@@ -105,12 +106,36 @@ input::placeholder{color:rgba(255,255,255,.4);font-weight:400;}
     <div style="padding:14px;"><button class="btn btn-ghost" id="shopBack">← Назад</button></div>
   </div>
 
+  <div id="sInstall" class="screen hidden">
+    <div class="topbar"><div class="who">Установить на телефон</div><div class="who">в 2 шага</div></div>
+    <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-gold" id="instIphone" style="padding:9px 18px;">iPhone</button>
+        <button class="btn btn-ghost" id="instAndroid" style="padding:9px 18px;">Android</button>
+      </div>
+      <canvas id="instCv" width="320" height="300" style="width:100%;max-width:300px;"></canvas>
+      <div style="font-size:14px;color:rgba(255,255,255,.82);text-align:left;line-height:1.7;width:100%;max-width:300px;" id="instText"></div>
+    </div>
+    <div style="padding:14px;"><button class="btn btn-ghost" id="instBack">← Назад</button></div>
+  </div>
+
   <div id="hud" class="hidden"><div class="hud-row"><div class="hud-coins"><span id="runCoins">0</span> ◉</div><div class="hud-lvl" id="hudLvl">Ур. 1</div></div></div>
 
   <div id="sRes" class="result">
     <div id="resTitle" class="res-title">Уровень пройден!</div>
     <div id="resCoins" class="res-coins"></div>
     <div id="resBest" style="font-size:13px;color:rgba(255,255,255,.6);"></div>
+    <div id="fbBox" style="display:none;flex-direction:column;align-items:center;gap:8px;width:100%;max-width:290px;background:rgba(255,255,255,.05);border-radius:14px;padding:14px;">
+      <div style="font-size:14px;color:rgba(255,255,255,.85);">как тебе игра?</div>
+      <div id="stars" style="display:flex;gap:8px;font-size:30px;cursor:pointer;line-height:1;">
+        <span data-v="1">☆</span><span data-v="2">☆</span><span data-v="3">☆</span><span data-v="4">☆</span><span data-v="5">☆</span>
+      </div>
+      <input id="fbWish" type="text" maxlength="30" placeholder="пожелание (до 30 букв)" style="width:100%;padding:10px;font-family:inherit;font-size:14px;text-align:center;background:rgba(255,255,255,.08);border:1px solid rgba(127,240,216,.3);border-radius:10px;color:#fff;outline:none;">
+      <div style="display:flex;gap:8px;width:100%;">
+        <button id="fbSend" class="btn btn-main" style="flex:1;padding:10px;">Отправить</button>
+        <button id="fbSkip" class="btn btn-ghost" style="flex:1;padding:10px;">Пропустить</button>
+      </div>
+    </div>
     <button id="resNext" class="btn btn-main" style="margin-top:6px;">Следующий уровень →</button>
     <button id="resRetry" class="btn btn-gold hidden">↻ Ещё раз</button>
     <button id="resMenu" class="btn btn-ghost">В меню</button>
@@ -118,11 +143,18 @@ input::placeholder{color:rgba(255,255,255,.4);font-weight:400;}
 </div>
 
 <script>
+/* ---------- feedback config ---------- */
+/* Вставь сюда свой Formspree endpoint (https://formspree.io/f/XXXX) — тогда оценки и пожелания будут приходить тебе.
+   Пока пусто — оценки просто собираются локально и никуда не уходят. Это же можно подключить через Claude Code. */
+const GAME_ID='drakosha';
+const FORM_ENDPOINT='';
+let fbShown=false, fbRating=0;
+
 /* ---------- storage ---------- */
 const mem={};
 const store={
-  async get(k){ try{ if(window.storage){const r=await window.storage.get(k,false);return r?r.value:null;} }catch(e){} return (k in mem)?mem[k]:null; },
-  async set(k,v){ try{ if(window.storage){await window.storage.set(k,v,false);return;} }catch(e){} mem[k]=v; }
+  async get(k){ try{ const v=localStorage.getItem(k); if(v!==null) return v; }catch(e){} return (k in mem)?mem[k]:null; },
+  async set(k,v){ try{ localStorage.setItem(k,String(v)); return; }catch(e){} mem[k]=v; }
 };
 const LAST='drkd:last', pKey=n=>'drkd:p:'+n;
 async function loadPlayer(n){ const raw=await store.get(pKey(n)); if(raw){try{const p=JSON.parse(raw);p.skins=p.skins||['teal'];p.skin=p.skin||'teal';p.seen=p.seen||[];return p;}catch(e){}}
@@ -223,6 +255,9 @@ function showResult(won,earned){
   document.getElementById('resBest').textContent=won?('баланс: '+player.coins+' монет'):'';
   document.getElementById('resNext').classList.toggle('hidden',!won||curL>=MAXLVL);
   document.getElementById('resRetry').classList.toggle('hidden',won);
+  const fb=document.getElementById('fbBox');
+  if(!won && !fbShown){ fbShown=true; fbRating=0; resetStars(); document.getElementById('fbWish').value=''; fb.style.display='flex'; }
+  else { fb.style.display='none'; }
   hud.classList.add('hidden');sRes.style.display='flex';
 }
 function popText(t,x,y,c){particles.push({txt:t,x,y,vy:-0.7,life:34,max:34,col:c});}
@@ -296,20 +331,38 @@ function drawRock(gt,edge,isTop){
 function drawBackPeaks(){ctx.fillStyle='rgba(58,44,96,.45)';ctx.beginPath();ctx.moveTo(-20,H-26);const pk=[[10,500],[55,548],[110,470],[165,540],[220,490],[275,545],[330,500],[380,540]];for(const p of pk)ctx.lineTo(p[0],p[1]);ctx.lineTo(W+20,H-26);ctx.closePath();ctx.fill();}
 function drawDragon(x,y,vy,fa){
   const sk=SKINS[player&&player.skin?player.skin:'teal'];
-  ctx.save();ctx.translate(x,y);const tilt=Math.max(-0.45,Math.min(0.85,vy*0.06));ctx.rotate(tilt);
-  ctx.shadowColor=sk.body;ctx.shadowBlur=18;ctx.fillStyle=sk.body;ctx.beginPath();
-  ctx.moveTo(-10,2);ctx.quadraticCurveTo(-24,-2,-26,-10);ctx.lineTo(-31,-7);ctx.lineTo(-27,-2);ctx.lineTo(-31,2);ctx.quadraticCurveTo(-22,4,-10,8);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.ellipse(0,0,15,12.5,0,0,6.28);ctx.fill();ctx.shadowBlur=0;
-  ctx.fillStyle=sk.belly;ctx.beginPath();ctx.ellipse(3,4,8.5,7,0,0,6.28);ctx.fill();
-  ctx.fillStyle=sk.d;for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(i*7-3,-11);ctx.lineTo(i*7,-16);ctx.lineTo(i*7+3,-11);ctx.closePath();ctx.fill();}
-  const wa=-0.35-fa*0.85+Math.sin(tick*0.2)*0.12;ctx.save();ctx.translate(-2,-7);ctx.rotate(wa);
-  ctx.fillStyle=sk.wing;ctx.beginPath();ctx.ellipse(-6,-4,12,7,0.5,0,6.28);ctx.fill();ctx.fillStyle='rgba(255,255,255,.25)';ctx.beginPath();ctx.ellipse(-7,-4,8,4.5,0.5,0,6.28);ctx.fill();ctx.restore();
-  ctx.fillStyle=sk.horn;ctx.beginPath();ctx.moveTo(6,-10);ctx.lineTo(8,-15);ctx.lineTo(10,-10);ctx.closePath();ctx.fill();
-  ctx.fillStyle='rgba(255,154,209,.55)';ctx.beginPath();ctx.arc(9,4,2.6,0,6.28);ctx.fill();
-  ctx.fillStyle=sk.body;ctx.beginPath();ctx.ellipse(14,1,5,4,0,0,6.28);ctx.fill();
-  ctx.fillStyle=sk.d;ctx.beginPath();ctx.arc(16,0.5,0.9,0,6.28);ctx.fill();ctx.beginPath();ctx.arc(16,2.5,0.9,0,6.28);ctx.fill();
-  ctx.strokeStyle=sk.d;ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(11,3.5,3,0.1,Math.PI-0.6);ctx.stroke();
-  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(8,-3,5,0,6.28);ctx.fill();ctx.fillStyle='#26223a';ctx.beginPath();ctx.arc(9.5,-3,2.4,0,6.28);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(10.4,-4,0.9,0,6.28);ctx.fill();
+  ctx.save();ctx.translate(x,y);
+  const tilt=Math.max(-0.45,Math.min(0.85,vy*0.06));ctx.rotate(tilt);ctx.scale(0.7,0.7);
+  const wing=-0.5-fa*0.55+Math.sin(tick*0.2)*0.18;
+  ctx.fillStyle=sk.d;
+  ctx.beginPath();ctx.moveTo(-14,4);ctx.quadraticCurveTo(-34,2,-40,-12);ctx.lineTo(-47,-9);ctx.lineTo(-42,-3);ctx.lineTo(-48,1);ctx.quadraticCurveTo(-34,8,-14,11);ctx.closePath();ctx.fill();
+  ctx.save();ctx.translate(-2,-9);ctx.rotate(wing*0.8+0.15);ctx.globalAlpha=0.45;ctx.fillStyle=sk.wing;
+  ctx.beginPath();ctx.moveTo(0,0);ctx.quadraticCurveTo(-20,-30,-40,-20);ctx.quadraticCurveTo(-30,-8,-28,2);ctx.quadraticCurveTo(-16,-2,0,0);ctx.closePath();ctx.fill();ctx.globalAlpha=1;ctx.restore();
+  ctx.fillStyle=sk.horn;const crest=[[-12,-9],[-5,-15],[3,-19],[11,-19],[18,-16]];
+  for(let i=0;i<crest.length-1;i++){const a=crest[i],b=crest[i+1];ctx.beginPath();ctx.moveTo(a[0],a[1]+4);ctx.lineTo((a[0]+b[0])/2,Math.min(a[1],b[1])-7);ctx.lineTo(b[0],b[1]+4);ctx.closePath();ctx.fill();}
+  ctx.shadowColor=sk.body;ctx.shadowBlur=16;ctx.fillStyle=sk.body;ctx.beginPath();ctx.ellipse(0,0,21,18,0,0,6.28);ctx.fill();ctx.shadowBlur=0;
+  ctx.fillStyle=sk.belly;ctx.beginPath();ctx.ellipse(5,7,12.5,11,0,0,6.28);ctx.fill();
+  ctx.strokeStyle=sk.d;ctx.lineWidth=1;ctx.globalAlpha=.4;for(let i=-1;i<=1;i++){ctx.beginPath();ctx.arc(5,7+i*5,9,-0.5,0.9);ctx.stroke();}ctx.globalAlpha=1;
+  ctx.fillStyle=sk.d;ctx.beginPath();ctx.ellipse(-6,15,6,5,0.2,0,6.28);ctx.fill();
+  ctx.fillStyle=sk.belly;for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(-10+i*3,18,1.4,0,6.28);ctx.fill();}
+  ctx.shadowColor=sk.body;ctx.shadowBlur=12;ctx.fillStyle=sk.body;ctx.beginPath();ctx.ellipse(22,-6,14,13,0,0,6.28);ctx.fill();ctx.shadowBlur=0;
+  ctx.fillStyle=sk.horn;
+  ctx.beginPath();ctx.moveTo(18,-16);ctx.quadraticCurveTo(14,-30,4,-31);ctx.quadraticCurveTo(14,-24,15,-15);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(27,-15);ctx.quadraticCurveTo(26,-28,17,-30);ctx.quadraticCurveTo(25,-22,24,-14);ctx.closePath();ctx.fill();
+  ctx.fillStyle=sk.body;ctx.beginPath();ctx.ellipse(35,-3,6.5,5,0,0,6.28);ctx.fill();
+  ctx.fillStyle=sk.d;ctx.beginPath();ctx.arc(38,-4,0.9,0,6.28);ctx.fill();ctx.beginPath();ctx.arc(38,-1.5,0.9,0,6.28);ctx.fill();
+  ctx.fillStyle='#7a2e3e';ctx.beginPath();ctx.moveTo(22,2.5);ctx.quadraticCurveTo(29,14,36,2.5);ctx.quadraticCurveTo(29,7,22,2.5);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#ff7a9c';ctx.beginPath();ctx.ellipse(29,8,3.4,2.3,0,0,6.28);ctx.fill();
+  ctx.fillStyle='rgba(255,140,195,.55)';ctx.beginPath();ctx.arc(20,1,3.4,0,6.28);ctx.fill();
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(24,-8,6.8,7.6,0,0,6.28);ctx.fill();
+  ctx.fillStyle='#241b33';ctx.beginPath();ctx.arc(25.5,-7,3.6,0,6.28);ctx.fill();
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(27.2,-9,1.9,0,6.28);ctx.fill();ctx.beginPath();ctx.arc(24,-4.6,1,0,6.28);ctx.fill();
+  ctx.strokeStyle=sk.d;ctx.lineWidth=1.6;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(19,-15.5);ctx.quadraticCurveTo(24,-18.5,29,-15);ctx.stroke();
+  ctx.save();ctx.translate(0,-9);ctx.rotate(wing);ctx.fillStyle=sk.wing;
+  ctx.beginPath();ctx.moveTo(0,0);ctx.quadraticCurveTo(-12,-34,-30,-40);ctx.lineTo(-26,-24);ctx.quadraticCurveTo(-34,-26,-40,-20);ctx.lineTo(-32,-12);ctx.quadraticCurveTo(-38,-12,-40,-4);ctx.quadraticCurveTo(-22,-2,0,4);ctx.closePath();ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.22)';ctx.beginPath();ctx.moveTo(-2,-1);ctx.quadraticCurveTo(-12,-26,-26,-34);ctx.quadraticCurveTo(-18,-16,-4,-2);ctx.closePath();ctx.fill();
+  ctx.strokeStyle=sk.d;ctx.lineWidth=1.4;ctx.globalAlpha=.6;ctx.beginPath();ctx.moveTo(-2,-2);ctx.lineTo(-29,-39);ctx.moveTo(-2,-2);ctx.lineTo(-39,-19);ctx.stroke();ctx.globalAlpha=1;
+  ctx.restore();
   ctx.restore();
 }
 // generic boss head/body painter on a given context, scaled, colored by sp; locked=>grey silhouette
@@ -365,7 +418,7 @@ function renderHome(){
   for(let L=1;L<=MAXLVL;L++){const d=document.createElement('div');d.className='lv';const open=L<=player.cleared+1;
     if(L<=player.cleared)d.classList.add('done');else if(open)d.classList.add('open');
     if(L===next)d.classList.add('cur');d.textContent=L;if(open)d.addEventListener('click',()=>startLevel(L));map.appendChild(d);}
-  state='home';hide(sAuth);hide(sShop);hide(sAlbum);sRes.style.display='none';hud.classList.add('hidden');show(sHome);
+  state='home';hide(sAuth);hide(sShop);hide(sAlbum);hide(sInstall);sRes.style.display='none';hud.classList.add('hidden');show(sHome);
   const nx=map.querySelector('.cur');if(nx)nx.scrollIntoView({block:'center'});
 }
 function renderAlbum(){
@@ -411,6 +464,52 @@ document.getElementById('switchP').addEventListener('click',async()=>{await stor
 document.getElementById('resNext').addEventListener('click',()=>startLevel(Math.min(MAXLVL,curL+1)));
 document.getElementById('resRetry').addEventListener('click',()=>startLevel(curL));
 document.getElementById('resMenu').addEventListener('click',renderHome);
+
+/* ---------- feedback (stars + wish) ---------- */
+function resetStars(){document.querySelectorAll('#stars span').forEach(s=>{s.textContent='☆';s.style.color='rgba(255,255,255,.5)';});}
+function paintStars(v){document.querySelectorAll('#stars span').forEach(s=>{const sv=+s.getAttribute('data-v');s.textContent=sv<=v?'★':'☆';s.style.color=sv<=v?'#ffd76a':'rgba(255,255,255,.5)';});}
+document.querySelectorAll('#stars span').forEach(s=>s.addEventListener('click',()=>{fbRating=+s.getAttribute('data-v');paintStars(fbRating);}));
+async function sendFeedback(){
+  const wish=document.getElementById('fbWish').value.trim();
+  const payload={game:GAME_ID,rating:fbRating,wish:wish,level:curL,player:player?player.nick:'',ts:new Date().toISOString()};
+  if(FORM_ENDPOINT){ try{ await fetch(FORM_ENDPOINT,{method:'POST',headers:{'Accept':'application/json','Content-Type':'application/json'},body:JSON.stringify(payload)});}catch(e){} }
+  document.getElementById('fbBox').style.display='none';
+}
+document.getElementById('fbSend').addEventListener('click',sendFeedback);
+document.getElementById('fbSkip').addEventListener('click',()=>{document.getElementById('fbBox').style.display='none';});
+
+/* ---------- install screen ---------- */
+const sInstall=document.getElementById('sInstall');
+function roundRectCtx(x,rx,ry,w,h,r){x.beginPath();x.moveTo(rx+r,ry);x.arcTo(rx+w,ry,rx+w,ry+h,r);x.arcTo(rx+w,ry+h,rx,ry+h,r);x.arcTo(rx,ry+h,rx,ry,r);x.arcTo(rx,ry,rx+w,ry,r);x.closePath();}
+function drawInstall(platform){
+  const c=document.getElementById('instCv'),x=c.getContext('2d');x.clearRect(0,0,320,300);
+  x.fillStyle='#1d1740';x.strokeStyle='#7ff0d8';x.lineWidth=3;roundRectCtx(x,95,15,130,250,22);x.fill();x.stroke();
+  x.fillStyle='#2a1b54';roundRectCtx(x,105,52,110,180,8);x.fill();
+  x.fillStyle='#7ff0d8';x.textAlign='center';x.font='600 15px Fredoka,sans-serif';x.fillText('ДРАКОША',160,150);
+  x.fillStyle='#5fe0c0';x.beginPath();x.ellipse(160,180,14,11,0,0,6.28);x.fill();x.fillStyle='#fff';x.beginPath();x.arc(166,177,3,0,6.28);x.fill();x.fillStyle='#26223a';x.beginPath();x.arc(167,177,1.4,0,6.28);x.fill();
+  if(platform==='iphone'){
+    x.fillStyle='#3a2a05';roundRectCtx(x,148,238,24,20,5);x.fillStyle='#ffd76a';x.fill();
+    x.fillStyle='#3a2a05';x.font='700 15px sans-serif';x.fillText('⬆',160,253);
+    x.strokeStyle='#ff9ad1';x.lineWidth=4;x.lineCap='round';x.beginPath();x.moveTo(235,290);x.lineTo(178,258);x.stroke();
+    x.fillStyle='#ff9ad1';x.beginPath();x.moveTo(172,255);x.lineTo(188,256);x.lineTo(180,268);x.closePath();x.fill();
+  } else {
+    x.fillStyle='#ffd76a';for(let i=0;i<3;i++){x.beginPath();x.arc(205,30+i*8,3,0,6.28);x.fill();}
+    x.strokeStyle='#ff9ad1';x.lineWidth=4;x.lineCap='round';x.beginPath();x.moveTo(270,75);x.lineTo(216,42);x.stroke();
+    x.fillStyle='#ff9ad1';x.beginPath();x.moveTo(210,38);x.lineTo(226,42);x.lineTo(218,54);x.closePath();x.fill();
+  }
+  document.getElementById('instIphone').style.background=platform==='iphone'?'#ffd76a':'rgba(255,255,255,.12)';
+  document.getElementById('instIphone').style.color=platform==='iphone'?'#3a2a05':'#fff';
+  document.getElementById('instAndroid').style.background=platform==='android'?'#ffd76a':'rgba(255,255,255,.12)';
+  document.getElementById('instAndroid').style.color=platform==='android'?'#3a2a05':'#fff';
+  document.getElementById('instText').innerHTML = platform==='iphone'
+    ? '<b>iPhone (Safari):</b><br>1. Нажми кнопку «Поделиться» ⬆ внизу экрана<br>2. Пролистай и выбери «На экран „Домой“»<br>3. Нажми «Добавить» — иконка появится на телефоне'
+    : '<b>Android (Chrome):</b><br>1. Открой меню ⋮ вверху справа<br>2. Выбери «Установить приложение»<br>3. Подтверди — иконка появится на экране';
+}
+function showInstall(){hide(sHome);hide(sShop);hide(sAlbum);sRes.style.display='none';show(sInstall);drawInstall('iphone');}
+document.getElementById('openInstall').addEventListener('click',showInstall);
+document.getElementById('instIphone').addEventListener('click',()=>drawInstall('iphone'));
+document.getElementById('instAndroid').addEventListener('click',()=>drawInstall('android'));
+document.getElementById('instBack').addEventListener('click',renderHome);
 
 async function init(){
   gates=[];coins=[];particles=[];fires=[];hero=null;boss=null;tick=0;shake=0;banner=0;speed=0;runCoins=0;gatesPassed=0;bossTime=0;
