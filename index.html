@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Дракоша — Драконы</title>
+<title>Chakipaki — Dragons</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -71,43 +71,43 @@ input::placeholder{color:rgba(255,255,255,.4);font-weight:400;}
   <canvas id="cv" width="360" height="600"></canvas>
 
   <div id="sAuth" class="screen"><div class="pad">
-    <div class="logo">ДРАКОША</div>
-    <div class="tagline">в каждом уровне свой дракон · собери всех в альбом</div>
-    <input id="nick" type="text" maxlength="14" placeholder="твоё имя" autocomplete="off">
+    <div class="logo">CHAKIPAKI</div>
+    <div class="tagline">a new dragon every level · collect them all</div>
+    <input id="nick" type="text" maxlength="14" placeholder="your name" autocomplete="off">
     <div id="err" class="err"></div>
-    <button id="enter" class="btn btn-main">Начать</button>
+    <button id="enter" class="btn btn-main">Start</button>
   </div></div>
 
   <div id="sHome" class="screen hidden">
     <div class="topbar"><div class="coins"><span class="coin-dot"></span><span id="hCoins">0</span></div><div class="who" id="hWho">—</div></div>
     <div class="home-body">
-      <div class="next-card"><div><div class="lvl">следующий уровень</div><div class="lvn" id="nextLvl">1</div></div><button class="play-now" id="playNow">▶ Играть</button></div>
-      <div class="section-h">уровни</div>
+      <div class="next-card"><div><div class="lvl">next level</div><div class="lvn" id="nextLvl">1</div></div><button class="play-now" id="playNow">▶ Play</button></div>
+      <div class="section-h">levels</div>
       <div class="map" id="map"></div>
-      <div class="pool-note">★ Недельный призовой фонд для топа таблицы — в Telegram-версии</div>
+      <div class="pool-note">★ Weekly prize pool for top players — coming in the Telegram version</div>
       <div class="home-foot">
-        <button class="btn btn-main" id="openInstall" style="min-width:100%;">📲 Установить на телефон</button>
-        <button class="btn btn-gold" id="openAlbum">Альбом драконов</button>
-        <button class="btn btn-gold" id="openShop">Магазин скинов</button>
-        <button class="btn btn-ghost" id="switchP">Сменить игрока</button>
+        <button class="btn btn-main" id="openInstall" style="min-width:100%;">📲 Install on phone</button>
+        <button class="btn btn-gold" id="openAlbum">Dragon album</button>
+        <button class="btn btn-gold" id="openShop">Skin shop</button>
+        <button class="btn btn-ghost" id="switchP">Switch player</button>
       </div>
     </div>
   </div>
 
   <div id="sAlbum" class="screen hidden">
-    <div class="topbar"><div class="who" id="albCount">Альбом</div><div class="who">собери всех</div></div>
+    <div class="topbar"><div class="who" id="albCount">Album</div><div class="who">collect them all</div></div>
     <div class="album-body" id="albumBody"></div>
-    <div style="padding:14px;"><button class="btn btn-ghost" id="albBack">← Назад</button></div>
+    <div style="padding:14px;"><button class="btn btn-ghost" id="albBack">← Back</button></div>
   </div>
 
   <div id="sShop" class="screen hidden">
-    <div class="topbar"><div class="coins"><span class="coin-dot"></span><span id="shCoins">0</span></div><div class="who">Магазин</div></div>
+    <div class="topbar"><div class="coins"><span class="coin-dot"></span><span id="shCoins">0</span></div><div class="who">Shop</div></div>
     <div class="shop-body" id="shopBody"></div>
-    <div style="padding:14px;"><button class="btn btn-ghost" id="shopBack">← Назад</button></div>
+    <div style="padding:14px;"><button class="btn btn-ghost" id="shopBack">← Back</button></div>
   </div>
 
   <div id="sInstall" class="screen hidden">
-    <div class="topbar"><div class="who">Установить на телефон</div><div class="who">в 2 шага</div></div>
+    <div class="topbar"><div class="who">Install on phone</div><div class="who">2 steps</div></div>
     <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;align-items:center;gap:12px;">
       <div style="display:flex;gap:8px;">
         <button class="btn btn-gold" id="instIphone" style="padding:9px 18px;">iPhone</button>
@@ -116,29 +116,29 @@ input::placeholder{color:rgba(255,255,255,.4);font-weight:400;}
       <canvas id="instCv" width="320" height="300" style="width:100%;max-width:300px;"></canvas>
       <div style="font-size:14px;color:rgba(255,255,255,.82);text-align:left;line-height:1.7;width:100%;max-width:300px;" id="instText"></div>
     </div>
-    <div style="padding:14px;"><button class="btn btn-ghost" id="instBack">← Назад</button></div>
+    <div style="padding:14px;"><button class="btn btn-ghost" id="instBack">← Back</button></div>
   </div>
 
-  <div id="hud" class="hidden"><div class="hud-row"><div class="hud-coins"><span id="runCoins">0</span> ◉</div><div class="hud-lvl" id="hudLvl">Ур. 1</div></div></div>
+  <div id="hud" class="hidden"><div class="hud-row"><div class="hud-coins"><span id="runCoins">0</span> ◉</div><div class="hud-lvl" id="hudLvl">Lvl 1</div></div></div>
 
   <div id="sRes" class="result">
-    <div id="resTitle" class="res-title">Уровень пройден!</div>
+    <div id="resTitle" class="res-title">Level complete!</div>
     <div id="resCoins" class="res-coins"></div>
     <div id="resBest" style="font-size:13px;color:rgba(255,255,255,.6);"></div>
     <div id="fbBox" style="display:none;flex-direction:column;align-items:center;gap:8px;width:100%;max-width:290px;background:rgba(255,255,255,.05);border-radius:14px;padding:14px;">
-      <div style="font-size:14px;color:rgba(255,255,255,.85);">как тебе игра?</div>
+      <div style="font-size:14px;color:rgba(255,255,255,.85);">how do you like it?</div>
       <div id="stars" style="display:flex;gap:8px;font-size:30px;cursor:pointer;line-height:1;">
         <span data-v="1">☆</span><span data-v="2">☆</span><span data-v="3">☆</span><span data-v="4">☆</span><span data-v="5">☆</span>
       </div>
-      <input id="fbWish" type="text" maxlength="30" placeholder="пожелание (до 30 букв)" style="width:100%;padding:10px;font-family:inherit;font-size:14px;text-align:center;background:rgba(255,255,255,.08);border:1px solid rgba(127,240,216,.3);border-radius:10px;color:#fff;outline:none;">
+      <input id="fbWish" type="text" maxlength="30" placeholder="your wish (up to 30 chars)" style="width:100%;padding:10px;font-family:inherit;font-size:14px;text-align:center;background:rgba(255,255,255,.08);border:1px solid rgba(127,240,216,.3);border-radius:10px;color:#fff;outline:none;">
       <div style="display:flex;gap:8px;width:100%;">
-        <button id="fbSend" class="btn btn-main" style="flex:1;padding:10px;">Отправить</button>
-        <button id="fbSkip" class="btn btn-ghost" style="flex:1;padding:10px;">Пропустить</button>
+        <button id="fbSend" class="btn btn-main" style="flex:1;padding:10px;">Send</button>
+        <button id="fbSkip" class="btn btn-ghost" style="flex:1;padding:10px;">Skip</button>
       </div>
     </div>
-    <button id="resNext" class="btn btn-main" style="margin-top:6px;">Следующий уровень →</button>
-    <button id="resRetry" class="btn btn-gold hidden">↻ Ещё раз</button>
-    <button id="resMenu" class="btn btn-ghost">В меню</button>
+    <button id="resNext" class="btn btn-main" style="margin-top:6px;">Next level →</button>
+    <button id="resRetry" class="btn btn-gold hidden">↻ Retry</button>
+    <button id="resMenu" class="btn btn-ghost">Menu</button>
   </div>
 </div>
 
@@ -163,21 +163,21 @@ function savePlayer(p){ store.set(pKey(p.nick),JSON.stringify(p)); }
 
 /* ---------- skins ---------- */
 const SKINS={
-  teal:{name:'Бирюзовый',price:0,body:'#5fe0c0',d:'#34c2a2',belly:'#d6fff4',wing:'#3fc9e8',horn:'#ff9ad1'},
-  ember:{name:'Огненный',price:60,body:'#ff8a4a',d:'#d65a26',belly:'#ffd9b0',wing:'#ff5d3a',horn:'#ffd24a'},
-  violet:{name:'Фиолетовый',price:150,body:'#a880ff',d:'#7a4fd6',belly:'#e8d6ff',wing:'#c89bff',horn:'#ff9ad1'},
-  gold:{name:'Золотой',price:400,body:'#ffd24a',d:'#d6a020',belly:'#fff4c2',wing:'#ffe27a',horn:'#ffffff'},
-  ice:{name:'Ледяной',price:800,body:'#aee3ff',d:'#5fb8e0',belly:'#eaf8ff',wing:'#8fd0ff',horn:'#d6f0ff'}
+  teal:{name:'Teal',price:0,body:'#5fe0c0',d:'#34c2a2',belly:'#d6fff4',wing:'#3fc9e8',horn:'#ff9ad1'},
+  ember:{name:'Ember',price:60,body:'#ff8a4a',d:'#d65a26',belly:'#ffd9b0',wing:'#ff5d3a',horn:'#ffd24a'},
+  violet:{name:'Violet',price:150,body:'#a880ff',d:'#7a4fd6',belly:'#e8d6ff',wing:'#c89bff',horn:'#ff9ad1'},
+  gold:{name:'Gold',price:400,body:'#ffd24a',d:'#d6a020',belly:'#fff4c2',wing:'#ffe27a',horn:'#ffffff'},
+  ice:{name:'Ice',price:800,body:'#aee3ff',d:'#5fb8e0',belly:'#eaf8ff',wing:'#8fd0ff',horn:'#d6f0ff'}
 };
 /* ---------- dragon species (bosses) ---------- */
 const SPECIES=[
- {name:'Уголёк',   sub:'огненный',  R1:'#d1402f',R2:'#9b2418',R3:'#6f1409',belly:'#f0a060',fire:'#ffb24a',pat:'aim'},
- {name:'Иней',     sub:'ледяной',   R1:'#5fb8e0',R2:'#3a86b0',R3:'#235a80',belly:'#dff2ff',fire:'#cdeeff',pat:'double'},
- {name:'Ядозуб',   sub:'ядовитый',  R1:'#6fcf5f',R2:'#3f9b2f',R3:'#256f18',belly:'#dfffd0',fire:'#b6ff6a',pat:'wave'},
- {name:'Грозовик', sub:'грозовой',  R1:'#a060ff',R2:'#7030c0',R3:'#4a1a80',belly:'#e8d0ff',fire:'#ffe24a',pat:'fast'},
- {name:'Камнегрыз',sub:'каменный',  R1:'#9a8a7a',R2:'#6f5f4f',R3:'#4a3f33',belly:'#d8ccbc',fire:'#caa87a',pat:'big'},
- {name:'Тенедрак', sub:'теневой',   R1:'#5a4a7a',R2:'#3a2a5a',R3:'#241a3c',belly:'#9a8aba',fire:'#c89bff',pat:'shadow'},
- {name:'Владыка',  sub:'королевский',R1:'#ffd24a',R2:'#c89020',R3:'#8a6010',belly:'#fff4c2',fire:'#ffe27a',pat:'spread3'}
+ {name:'Ember',    sub:'fire',  R1:'#d1402f',R2:'#9b2418',R3:'#6f1409',belly:'#f0a060',fire:'#ffb24a',pat:'aim'},
+ {name:'Frost',    sub:'ice',   R1:'#5fb8e0',R2:'#3a86b0',R3:'#235a80',belly:'#dff2ff',fire:'#cdeeff',pat:'double'},
+ {name:'Venom',    sub:'poison',  R1:'#6fcf5f',R2:'#3f9b2f',R3:'#256f18',belly:'#dfffd0',fire:'#b6ff6a',pat:'wave'},
+ {name:'Storm',    sub:'storm',  R1:'#a060ff',R2:'#7030c0',R3:'#4a1a80',belly:'#e8d0ff',fire:'#ffe24a',pat:'fast'},
+ {name:'Boulder',  sub:'stone',  R1:'#9a8a7a',R2:'#6f5f4f',R3:'#4a3f33',belly:'#d8ccbc',fire:'#caa87a',pat:'big'},
+ {name:'Shade',    sub:'shadow',   R1:'#5a4a7a',R2:'#3a2a5a',R3:'#241a3c',belly:'#9a8aba',fire:'#c89bff',pat:'shadow'},
+ {name:'Overlord', sub:'royal',R1:'#ffd24a',R2:'#c89020',R3:'#8a6010',belly:'#fff4c2',fire:'#ffe27a',pat:'spread3'}
 ];
 function speciesIdxFor(L){ return Math.min(SPECIES.length-1, Math.floor((L-1)/14)); }
 
@@ -231,7 +231,7 @@ function startLevel(L){
   state='playing';
   sHome.classList.add('hidden');sShop.classList.add('hidden');sAlbum.classList.add('hidden');sRes.style.display='none';hud.classList.remove('hidden');
   document.getElementById('runCoins').textContent='0';
-  document.getElementById('hudLvl').textContent='Ур. '+L;
+  document.getElementById('hudLvl').textContent='Lvl '+L;
 }
 function enterBoss(){
   phase='boss';gates=[];coins=[];fires=[];bossTime=0;shake=12;banner=1.7;bannerTxt=cfg.sp.name;
@@ -249,10 +249,10 @@ function clearLevel(){
   setTimeout(()=>showResult(true,earned),650);
 }
 function showResult(won,earned){
-  document.getElementById('resTitle').textContent=won?(curL===MAXLVL?'★ Все 100 пройдены!':'★ '+cfg.sp.name+' побеждён!'):'Дракоша устал!';
+  document.getElementById('resTitle').textContent=won?(curL===MAXLVL?'★ All 100 cleared!':'★ '+cfg.sp.name+' defeated!'):'You crashed!';
   document.getElementById('resTitle').style.color=won?'#ffd76a':'#ff9ad1';
-  document.getElementById('resCoins').textContent=won?('+'+earned+' монет'):'';
-  document.getElementById('resBest').textContent=won?('баланс: '+player.coins+' монет'):'';
+  document.getElementById('resCoins').textContent=won?('+'+earned+' coins'):'';
+  document.getElementById('resBest').textContent=won?('balance: '+player.coins+' coins'):'';
   document.getElementById('resNext').classList.toggle('hidden',!won||curL>=MAXLVL);
   document.getElementById('resRetry').classList.toggle('hidden',won);
   const fb=document.getElementById('fbBox');
@@ -400,8 +400,8 @@ function draw(){
   if((state==='playing'||state==='clear')&&hero){for(let i=0;i<hero.trail.length;i++){const t=hero.trail[i],a=i/hero.trail.length;ctx.globalAlpha=a*0.4;ctx.fillStyle='#7ff0d8';ctx.beginPath();ctx.arc(t.x,t.y,4*a,0,6.28);ctx.fill();}ctx.globalAlpha=1;drawDragon(hero.x,hero.y,hero.vy,hero.flapAnim);}
   for(const p of particles){const a=Math.max(0,p.life/p.max);if(p.txt){ctx.globalAlpha=a;ctx.fillStyle=p.col;ctx.font='600 18px Fredoka,sans-serif';ctx.textAlign='center';ctx.fillText(p.txt,p.x,p.y);}else{ctx.globalAlpha=a;ctx.fillStyle=p.col;ctx.beginPath();ctx.arc(p.x,p.y,p.r||2,0,6.28);ctx.fill();}}ctx.globalAlpha=1;
   if(state==='playing'){ctx.fillStyle='rgba(255,255,255,.1)';ctx.fillRect(0,H-4,W,4);let pr=phase==='fly'?gatesPassed/cfg.flyTarget:bossTime/cfg.bossTime;ctx.fillStyle=phase==='boss'?'#ff5d5d':'#7ff0d8';ctx.fillRect(0,H-4,W*Math.min(1,pr),4);
-    if(phase==='boss'){ctx.fillStyle='#fff';ctx.font='600 13px Fredoka,sans-serif';ctx.textAlign='center';ctx.fillText('ВЫЖИВИ: '+Math.ceil(cfg.bossTime-bossTime)+'с',W/2,40);}}
-  if(banner>0){ctx.globalAlpha=Math.min(1,banner);ctx.textAlign='center';ctx.fillStyle=boss?boss.sp.fire:'#ff5d5d';ctx.font='800 36px Fredoka,sans-serif';ctx.fillText(bannerTxt+'!',W/2,H/2-10);ctx.fillStyle='#fff';ctx.font='500 16px Fredoka,sans-serif';ctx.fillText('продержись '+Math.round(cfg.bossTime)+'с',W/2,H/2+18);ctx.globalAlpha=1;}
+    if(phase==='boss'){ctx.fillStyle='#fff';ctx.font='600 13px Fredoka,sans-serif';ctx.textAlign='center';ctx.fillText('SURVIVE: '+Math.ceil(cfg.bossTime-bossTime)+'s',W/2,40);}}
+  if(banner>0){ctx.globalAlpha=Math.min(1,banner);ctx.textAlign='center';ctx.fillStyle=boss?boss.sp.fire:'#ff5d5d';ctx.font='800 36px Fredoka,sans-serif';ctx.fillText(bannerTxt+'!',W/2,H/2-10);ctx.fillStyle='#fff';ctx.font='500 16px Fredoka,sans-serif';ctx.fillText('survive '+Math.round(cfg.bossTime)+'s',W/2,H/2+18);ctx.globalAlpha=1;}
   ctx.restore();
 }
 function loop(now){const dt=Math.min((now-last)/16.667,2.4);last=now;update(dt);draw();raf=requestAnimationFrame(loop);}
@@ -422,7 +422,7 @@ function renderHome(){
   const nx=map.querySelector('.cur');if(nx)nx.scrollIntoView({block:'center'});
 }
 function renderAlbum(){
-  document.getElementById('albCount').textContent='Альбом '+player.seen.length+'/'+SPECIES.length;
+  document.getElementById('albCount').textContent='Album '+player.seen.length+'/'+SPECIES.length;
   const body=document.getElementById('albumBody');body.innerHTML='';
   SPECIES.forEach((sp,i)=>{
     const seen=player.seen.includes(i);
@@ -431,7 +431,7 @@ function renderAlbum(){
     cx.translate(95,62);paintBoss(cx,sp,0.95,seen?0:0,!seen);
     cell.appendChild(c);
     const nm=document.createElement('div');nm.className='dn';nm.textContent=seen?sp.name:'???';
-    const sb=document.createElement('div');sb.className='ds';sb.textContent=seen?sp.sub:'не открыт';
+    const sb=document.createElement('div');sb.className='ds';sb.textContent=seen?sp.sub:'locked';
     cell.appendChild(nm);cell.appendChild(sb);body.appendChild(cell);
   });
   state='album';hide(sHome);hide(sShop);sRes.style.display='none';hud.classList.add('hidden');show(sAlbum);
@@ -440,19 +440,19 @@ function renderShop(){
   document.getElementById('shCoins').textContent=player.coins;const body=document.getElementById('shopBody');body.innerHTML='';
   for(const id in SKINS){const s=SKINS[id];const owned=player.skins.includes(id);const sel=player.skin===id;
     const row=document.createElement('div');row.className='skin-row';
-    row.innerHTML='<div class="skin-swatch" style="background:radial-gradient(circle at 35% 30%,'+s.belly+','+s.body+' 55%,'+s.d+');"></div><div class="skin-info"><div class="skin-name">'+s.name+'</div>'+(owned?'<div class="skin-price" style="color:rgba(255,255,255,.45)">'+(sel?'выбран':'в коллекции')+'</div>':'<div class="skin-price">'+s.price+' монет</div>')+'</div>';
+    row.innerHTML='<div class="skin-swatch" style="background:radial-gradient(circle at 35% 30%,'+s.belly+','+s.body+' 55%,'+s.d+');"></div><div class="skin-info"><div class="skin-name">'+s.name+'</div>'+(owned?'<div class="skin-price" style="color:rgba(255,255,255,.45)">'+(sel?'selected':'owned')+'</div>':'<div class="skin-price">'+s.price+' coins</div>')+'</div>';
     const btn=document.createElement('button');btn.className='skin-btn';
     if(sel){btn.textContent='✓';btn.className+=' sb-on';}
-    else if(owned){btn.textContent='Выбрать';btn.className+=' sb-sel';btn.onclick=()=>{player.skin=id;savePlayer(player);renderShop();};}
-    else if(player.coins>=s.price){btn.textContent='Купить';btn.className+=' sb-buy';btn.onclick=()=>{player.coins-=s.price;player.skins.push(id);player.skin=id;savePlayer(player);renderShop();};}
-    else{btn.textContent='нет монет';btn.className+=' sb-no';}
+    else if(owned){btn.textContent='Select';btn.className+=' sb-sel';btn.onclick=()=>{player.skin=id;savePlayer(player);renderShop();};}
+    else if(player.coins>=s.price){btn.textContent='Buy';btn.className+=' sb-buy';btn.onclick=()=>{player.coins-=s.price;player.skins.push(id);player.skin=id;savePlayer(player);renderShop();};}
+    else{btn.textContent='locked';btn.className+=' sb-no';}
     row.appendChild(btn);body.appendChild(row);
   }
   state='shop';hide(sHome);hide(sAlbum);sRes.style.display='none';hud.classList.add('hidden');show(sShop);
 }
 async function enterWithNick(n){player=await loadPlayer(n);await store.set(LAST,n);renderHome();}
 const nickI=document.getElementById('nick'),errEl=document.getElementById('err');
-function submitNick(){const v=nickI.value.trim();if(!v){errEl.textContent='впиши имя';return;}enterWithNick(v);}
+function submitNick(){const v=nickI.value.trim();if(!v){errEl.textContent='enter a name';return;}enterWithNick(v);}
 document.getElementById('enter').addEventListener('click',submitNick);
 nickI.addEventListener('keydown',e=>{if(e.key==='Enter')submitNick();});
 document.getElementById('playNow').addEventListener('click',()=>startLevel(Math.min(MAXLVL,player.cleared+1)));
@@ -481,29 +481,52 @@ document.getElementById('fbSkip').addEventListener('click',()=>{document.getElem
 /* ---------- install screen ---------- */
 const sInstall=document.getElementById('sInstall');
 function roundRectCtx(x,rx,ry,w,h,r){x.beginPath();x.moveTo(rx+r,ry);x.arcTo(rx+w,ry,rx+w,ry+h,r);x.arcTo(rx+w,ry+h,rx,ry+h,r);x.arcTo(rx,ry+h,rx,ry,r);x.arcTo(rx,ry,rx+w,ry,r);x.closePath();}
+function drawShareGlyph(x,cx,cy,col){
+  x.strokeStyle=col;x.lineWidth=2.6;x.lineCap='round';x.lineJoin='round';
+  x.beginPath();x.moveTo(cx-7,cy-1);x.lineTo(cx-7,cy+8);x.lineTo(cx+7,cy+8);x.lineTo(cx+7,cy-1);x.stroke();
+  x.beginPath();x.moveTo(cx,cy+3);x.lineTo(cx,cy-10);x.stroke();
+  x.beginPath();x.moveTo(cx-4,cy-6);x.lineTo(cx,cy-11);x.lineTo(cx+4,cy-6);x.stroke();
+}
 function drawInstall(platform){
   const c=document.getElementById('instCv'),x=c.getContext('2d');x.clearRect(0,0,320,300);
-  x.fillStyle='#1d1740';x.strokeStyle='#7ff0d8';x.lineWidth=3;roundRectCtx(x,95,15,130,250,22);x.fill();x.stroke();
-  x.fillStyle='#2a1b54';roundRectCtx(x,105,52,110,180,8);x.fill();
-  x.fillStyle='#7ff0d8';x.textAlign='center';x.font='600 15px Fredoka,sans-serif';x.fillText('ДРАКОША',160,150);
-  x.fillStyle='#5fe0c0';x.beginPath();x.ellipse(160,180,14,11,0,0,6.28);x.fill();x.fillStyle='#fff';x.beginPath();x.arc(166,177,3,0,6.28);x.fill();x.fillStyle='#26223a';x.beginPath();x.arc(167,177,1.4,0,6.28);x.fill();
+  x.lineJoin='round';
+  x.fillStyle='#15102b';x.strokeStyle='#7ff0d8';x.lineWidth=3;roundRectCtx(x,96,12,128,250,20);x.fill();x.stroke();
+  x.fillStyle='#241a47';roundRectCtx(x,104,22,112,206,8);x.fill();
+  x.fillStyle='#7ff0d8';x.textAlign='center';x.font='600 14px Fredoka,sans-serif';x.fillText('CHAKIPAKI',160,86);
+  x.fillStyle='#5fe0c0';x.beginPath();x.ellipse(160,116,15,12,0,0,6.28);x.fill();
+  x.fillStyle='#3fc9e8';x.beginPath();x.ellipse(150,108,8,5,0.5,0,6.28);x.fill();
+  x.fillStyle='#fff';x.beginPath();x.arc(167,112,3.6,0,6.28);x.fill();x.fillStyle='#26223a';x.beginPath();x.arc(168,112,1.7,0,6.28);x.fill();
   if(platform==='iphone'){
-    x.fillStyle='#3a2a05';roundRectCtx(x,148,238,24,20,5);x.fillStyle='#ffd76a';x.fill();
-    x.fillStyle='#3a2a05';x.font='700 15px sans-serif';x.fillText('⬆',160,253);
-    x.strokeStyle='#ff9ad1';x.lineWidth=4;x.lineCap='round';x.beginPath();x.moveTo(235,290);x.lineTo(178,258);x.stroke();
-    x.fillStyle='#ff9ad1';x.beginPath();x.moveTo(172,255);x.lineTo(188,256);x.lineTo(180,268);x.closePath();x.fill();
+    x.fillStyle='#1b1430';roundRectCtx(x,104,232,112,30,8);x.fill();
+    x.strokeStyle='#6b6486';x.lineWidth=2;x.lineCap='round';
+    x.beginPath();x.moveTo(120,243);x.lineTo(116,247);x.lineTo(120,251);x.stroke();
+    x.beginPath();x.moveTo(136,243);x.lineTo(140,247);x.lineTo(136,251);x.stroke();
+    x.strokeRect(181,242,9,10);x.strokeRect(197,242,9,10);
+    const sx=160,sy=246;
+    x.fillStyle='rgba(255,215,106,.22)';x.beginPath();x.arc(sx,sy,16,0,6.28);x.fill();
+    x.strokeStyle='#ffd76a';x.lineWidth=2.5;x.beginPath();x.arc(sx,sy,15,0,6.28);x.stroke();
+    drawShareGlyph(x,sx,sy,'#ffd76a');
+    x.strokeStyle='#ff7ab0';x.lineWidth=6;x.lineCap='round';x.beginPath();x.moveTo(sx,296);x.lineTo(sx,270);x.stroke();
+    x.fillStyle='#ff7ab0';x.beginPath();x.moveTo(sx-10,274);x.lineTo(sx+10,274);x.lineTo(sx,262);x.closePath();x.fill();
+    x.fillStyle='#ff7ab0';x.beginPath();x.arc(sx+30,289,11,0,6.28);x.fill();
+    x.fillStyle='#2a0816';x.font='700 14px Fredoka,sans-serif';x.fillText('1',sx+30,294);
   } else {
-    x.fillStyle='#ffd76a';for(let i=0;i<3;i++){x.beginPath();x.arc(205,30+i*8,3,0,6.28);x.fill();}
-    x.strokeStyle='#ff9ad1';x.lineWidth=4;x.lineCap='round';x.beginPath();x.moveTo(270,75);x.lineTo(216,42);x.stroke();
-    x.fillStyle='#ff9ad1';x.beginPath();x.moveTo(210,38);x.lineTo(226,42);x.lineTo(218,54);x.closePath();x.fill();
+    const mx=204,my=38;
+    x.fillStyle='rgba(255,215,106,.22)';x.beginPath();x.arc(mx,my+8,16,0,6.28);x.fill();
+    x.strokeStyle='#ffd76a';x.lineWidth=2.5;x.beginPath();x.arc(mx,my+8,15,0,6.28);x.stroke();
+    x.fillStyle='#ffd76a';for(let i=0;i<3;i++){x.beginPath();x.arc(mx,my+i*8,2.7,0,6.28);x.fill();}
+    x.strokeStyle='#ff7ab0';x.lineWidth=6;x.lineCap='round';x.beginPath();x.moveTo(150,150);x.lineTo(mx-12,my+24);x.stroke();
+    x.fillStyle='#ff7ab0';x.beginPath();x.moveTo(mx-22,my+16);x.lineTo(mx-4,my+20);x.lineTo(mx-15,my+32);x.closePath();x.fill();
+    x.fillStyle='#ff7ab0';x.beginPath();x.arc(150,162,11,0,6.28);x.fill();
+    x.fillStyle='#2a0816';x.textAlign='center';x.font='700 14px Fredoka,sans-serif';x.fillText('1',150,167);
   }
   document.getElementById('instIphone').style.background=platform==='iphone'?'#ffd76a':'rgba(255,255,255,.12)';
   document.getElementById('instIphone').style.color=platform==='iphone'?'#3a2a05':'#fff';
   document.getElementById('instAndroid').style.background=platform==='android'?'#ffd76a':'rgba(255,255,255,.12)';
   document.getElementById('instAndroid').style.color=platform==='android'?'#3a2a05':'#fff';
   document.getElementById('instText').innerHTML = platform==='iphone'
-    ? '<b>iPhone (Safari):</b><br>1. Нажми кнопку «Поделиться» ⬆ внизу экрана<br>2. Пролистай и выбери «На экран „Домой“»<br>3. Нажми «Добавить» — иконка появится на телефоне'
-    : '<b>Android (Chrome):</b><br>1. Открой меню ⋮ вверху справа<br>2. Выбери «Установить приложение»<br>3. Подтверди — иконка появится на экране';
+    ? '<b>iPhone — Safari</b><br>1. Tap the <b>Share</b> button (the ⬆ box in the bottom bar)<br>2. Scroll down, choose <b>“Add to Home Screen”</b><br>3. Tap <b>Add</b> — done! 🎮'
+    : '<b>Android — Chrome</b><br>1. Tap the <b>⋮ menu</b> (top right)<br>2. Choose <b>“Install app”</b><br>3. Confirm — done! 🎮';
 }
 function showInstall(){hide(sHome);hide(sShop);hide(sAlbum);sRes.style.display='none';show(sInstall);drawInstall('iphone');}
 document.getElementById('openInstall').addEventListener('click',showInstall);
