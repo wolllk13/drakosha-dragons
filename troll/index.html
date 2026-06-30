@@ -41,12 +41,13 @@ canvas{display:block;width:100%;height:100%;background:#0d0a1f;}
 <script>
 const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
 let W=360,H=640,GND=0,DPR=1;
+const ZOOM=1.25; // приблизить всю игру на 25%
 function fit(){
   DPR=Math.min(window.devicePixelRatio||1,2.5);
   const w=window.innerWidth,h=window.innerHeight;
   cv.width=Math.round(w*DPR);cv.height=Math.round(h*DPR);
-  ctx.setTransform(DPR,0,0,DPR,0,0);
-  W=w;H=h;GND=H*0.66;
+  ctx.setTransform(DPR*ZOOM,0,0,DPR*ZOOM,0,0);
+  W=w/ZOOM;H=h/ZOOM;GND=H*0.66;
 }
 window.addEventListener('resize',fit);window.addEventListener('orientationchange',()=>setTimeout(fit,200));
 
