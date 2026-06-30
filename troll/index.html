@@ -75,7 +75,7 @@ window.addEventListener('keyup',e=>{if(e.key==='ArrowLeft')key.l=false;if(e.key=
 
 // ---- game state ----
 let state='menu',level=1,maxLevel=10;
-let p,cam,traps,goalX,particles,tick,shakeT,banner,bannerT;
+let p,cam,traps,goalX,particles,tick,shakeT,banner,bannerT,chaser;
 
 function rng(seed){return function(){seed=(seed*9301+49297)%233280;return seed/233280;};}
 
@@ -91,7 +91,7 @@ function buildLevel(L){
     px+=120+r()*90;
   }
 }
-function spawn(){p={x:50,y:GND-22,vx:0,vy:0,onG:true,scared:0,dead:false,deadT:0,face:1,walk:0};cam=0;}
+function spawn(){p={x:50,y:GND-22,vx:0,vy:0,onG:true,scared:0,dead:false,deadT:0,face:1,walk:0};cam=0;chaser={x:p.x-240,y:GND-15,walk:0};}
 function startLevel(L,resetDeaths){
   level=L;if(resetDeaths)save.deaths=0;
   spawn();particles=[];tick=0;shakeT=0;banner='LEVEL '+L;bannerT=70;
@@ -142,6 +142,14 @@ function update(){
   else{p.onG=false;if(p.y-15>H+40)die();}
   if(p.scared>0)p.scared--;
 
+  // chaser — runs in from behind and catches up
+  if(chaser){
+    const chSpeed=2.0+level*0.05;
+    chaser.x+=chSpeed;chaser.walk+=0.4;
+    if(p.x-chaser.x<60)p.scared=Math.max(p.scared,6);
+    if(chaser.x>p.x-12)die();
+  }
+
   if(p.x>goalX){state='win';if(level>=save.best)save.best=level;persist();
     for(let k=0;k<30;k++)particles.push({x:p.x,y:p.y,vx:(Math.random()-.5)*8,vy:-Math.random()*8-2,life:50,c:k%3===0?'#5fe0c0':k%3===1?'#ffd76a':'#ff8ad1'});}
   for(let j=particles.length-1;j>=0;j--){const a=particles[j];a.x+=a.vx;a.y+=a.vy;a.vy+=.32;a.life--;if(a.life<=0)particles.splice(j,1);}
@@ -176,6 +184,29 @@ function guy(gx,gy,sc,dead,face,walk,onG){
   ctx.restore();
 }
 
+function chaserDraw(cx,cy,walk){
+  ctx.save();ctx.translate(cx,cy);
+  const ls=Math.sin(walk)*6;
+  // tail in front (leaning toward the prey)
+  ctx.strokeStyle='#ff5a7a';ctx.lineWidth=4;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(8,3);ctx.quadraticCurveTo(22,Math.sin(walk)*5,17,-13);ctx.stroke();
+  // legs
+  ctx.strokeStyle='#c0364f';ctx.lineWidth=3.6;
+  ctx.beginPath();ctx.moveTo(-3,7);ctx.lineTo(-3-ls*.4,19+Math.max(0,ls));ctx.stroke();
+  ctx.beginPath();ctx.moveTo(3,7);ctx.lineTo(3+ls*.4,19+Math.max(0,-ls));ctx.stroke();
+  // body
+  ctx.fillStyle='#ff5a7a';ctx.beginPath();ctx.ellipse(0,-2,11,13,0,0,7);ctx.fill();
+  ctx.fillStyle='#ffd0db';ctx.beginPath();ctx.ellipse(-1,3,5,7,0,0,7);ctx.fill();
+  // angry eyes
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(-4,-6,3.6,0,7);ctx.fill();ctx.beginPath();ctx.arc(4,-6,3.6,0,7);ctx.fill();
+  ctx.fillStyle='#0d0a1f';ctx.beginPath();ctx.arc(-3,-6,1.9,0,7);ctx.fill();ctx.beginPath();ctx.arc(5,-6,1.9,0,7);ctx.fill();
+  ctx.strokeStyle='#7a1226';ctx.lineWidth=2.2;
+  ctx.beginPath();ctx.moveTo(-8,-11);ctx.lineTo(-1,-8);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(8,-11);ctx.lineTo(1,-8);ctx.stroke();
+  // snarl
+  ctx.fillStyle='#0d0a1f';ctx.beginPath();ctx.arc(0,2,2.8,0,7);ctx.fill();
+  ctx.restore();
+}
 function draw(){
   const sx=shakeT>0?(Math.random()-.5)*shakeT*.7:0, sy=shakeT>0?(Math.random()-.5)*shakeT*.7:0;
   ctx.save();ctx.translate(sx,sy);
@@ -229,6 +260,8 @@ function draw(){
 
   for(const a of particles){ctx.globalAlpha=Math.max(0,a.life/45);ctx.fillStyle=a.c;ctx.fillRect(a.x-cam-2,a.y-2,4,4);}
   ctx.globalAlpha=1;
+
+  if(state==='play'&&chaser)chaserDraw(chaser.x-cam,chaser.y,chaser.walk);
 
   if(state!=='win'||tick%6<4)guy(p.x-cam,p.y,p.scared,p.dead,p.face,p.walk,p.onG);
 
