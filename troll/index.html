@@ -106,6 +106,7 @@ window.addEventListener('keyup',e=>{if(e.key==='ArrowLeft')key.l=false;if(e.key=
 // ---- game state ----
 let state='menu',level=1,maxLevel=10;
 let p,cam,traps,goalX,particles,tick,shakeT,banner,bannerT,chaser;
+let caughtT=0;
 
 function rng(seed){return function(){seed=(seed*9301+49297)%233280;return seed/233280;};}
 
@@ -130,6 +131,7 @@ function startLevel(L,resetDeaths){
 function jump(){
   if(state==='menu'){startLevel(1,true);return;}
   if(state==='win'){let n=level+1;if(n>maxLevel)n=1;startLevel(n,false);return;}
+  if(state==='caught'){startLevel(level,false);return;}
   if(p.dead)return;
   if(p.onG){p.vy=-9.2;p.onG=false;}
 }
@@ -138,10 +140,15 @@ function die(){
   p.dead=true;p.deadT=48;save.deaths++;shakeT=20;persist();
   for(let i=0;i<16;i++)particles.push({x:p.x,y:p.y,vx:(Math.random()-.5)*6,vy:-Math.random()*6-1,life:34,c:i%2?'#ffd76a':'#ff6b8a'});
 }
+function caughtByChaser(){
+  if(state!=='play')return;
+  save.deaths++;persist();shakeT=28;caughtT=0;state='caught';
+  for(let i=0;i<26;i++)particles.push({x:p.x,y:p.y-10,vx:(Math.random()-.5)*8,vy:-Math.random()*7-1,life:40,c:i%2?'#ff5a7a':'#ffd0db'});
+}
 
 function update(){
   tick++;
-  if(state!=='play')return;
+  if(state!=='play'){if(shakeT>0)shakeT--;if(state==='caught')caughtT++;return;}
   if(bannerT>0)bannerT--;
   if(p.dead){
     p.deadT--;p.y+=4;p.vy=0;
@@ -177,7 +184,7 @@ function update(){
     const chSpeed=2.0+level*0.05;
     chaser.x+=chSpeed;chaser.walk+=0.4;
     if(p.x-chaser.x<60)p.scared=Math.max(p.scared,6);
-    if(chaser.x>p.x-12)die();
+    if(chaser.x>p.x-12)caughtByChaser();
   }
 
   if(p.x>goalX){state='win';if(level>=save.best)save.best=level;persist();
@@ -299,7 +306,7 @@ function draw(){
   for(const a of particles){ctx.globalAlpha=Math.max(0,a.life/45);ctx.fillStyle=a.c;ctx.fillRect(a.x-cam-2,a.y-2,4,4);}
   ctx.globalAlpha=1;
 
-  if(state==='play'&&chaser)chaserDraw(chaser.x-cam,chaser.y,chaser.walk);
+  if((state==='play'||state==='caught')&&chaser)chaserDraw(chaser.x-cam,chaser.y,chaser.walk);
 
   if(state!=='win'||tick%6<4)guy(p.x-cam,p.y,p.scared,p.dead,p.face,p.walk,p.onG);
 
@@ -318,6 +325,30 @@ function draw(){
     ctx.fillText('Level '+level+' cleared  ·  💀 '+save.deaths,W/2,H/2+4);
     ctx.fillStyle='#ffd76a';ctx.font='600 17px Fredoka,sans-serif';
     ctx.fillText('tap for next level',W/2,H/2+46);
+  }
+
+  if(state==='caught'){
+    ctx.fillStyle='rgba(13,10,31,.9)';ctx.fillRect(0,0,W,H);
+    const g=Math.min(1,caughtT/12), R=Math.min(W,H)*0.19*g+4, cx=W/2, cy=H*0.40;
+    const jx=caughtT<14?(Math.random()-.5)*7*(1-g):0, jy=caughtT<14?(Math.random()-.5)*7*(1-g):0;
+    ctx.save();ctx.beginPath();ctx.arc(cx+jx,cy+jy,R,0,7);ctx.clip();
+    if(faceReady()){ctx.drawImage(faceImg,cx+jx-R,cy+jy-R,R*2,R*2);}
+    else{
+      ctx.fillStyle='#fff';ctx.fillRect(cx-R,cy-R,R*2,R*2);
+      ctx.fillStyle='#0d0a1f';
+      ctx.beginPath();ctx.arc(cx-R*0.34,cy-R*0.12,R*0.17,0,7);ctx.fill();
+      ctx.beginPath();ctx.arc(cx+R*0.34,cy-R*0.12,R*0.17,0,7);ctx.fill();
+      ctx.beginPath();ctx.ellipse(cx,cy+R*0.42,R*0.16,R*0.24,0,0,7);ctx.fill();
+    }
+    ctx.restore();
+    ctx.lineWidth=4;ctx.strokeStyle='#ff5a7a';ctx.beginPath();ctx.arc(cx+jx,cy+jy,R,0,7);ctx.stroke();
+    ctx.strokeStyle='#ffd76a';ctx.lineWidth=3;
+    for(let a=0;a<8;a++){const an=a/8*Math.PI*2,r1=R+8,r2=R+8+12*g;ctx.beginPath();ctx.moveTo(cx+Math.cos(an)*r1,cy+Math.sin(an)*r1);ctx.lineTo(cx+Math.cos(an)*r2,cy+Math.sin(an)*r2);ctx.stroke();}
+    ctx.textAlign='center';
+    ctx.fillStyle='#ff5a7a';ctx.font='800 42px Fredoka,sans-serif';ctx.fillText('CAUGHT!',W/2,cy+R+56);
+    ctx.fillStyle='#fff';ctx.font='500 16px Fredoka,sans-serif';ctx.fillText('the troll got you  ·  💀 '+save.deaths,W/2,cy+R+84);
+    ctx.fillStyle='#ffd76a';ctx.font='600 17px Fredoka,sans-serif';
+    if(caughtT%44<28)ctx.fillText('tap to run again',W/2,cy+R+120);
   }
   ctx.restore();
 }
