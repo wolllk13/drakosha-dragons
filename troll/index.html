@@ -24,11 +24,15 @@ canvas{display:block;width:100%;height:100%;background:#0d0a1f;}
 #move .divider{position:absolute;top:18px;bottom:18px;left:50%;width:1px;background:rgba(127,240,216,.18);}
 #jump{width:42%;max-width:160px;height:80px;background:rgba(255,138,168,.14);border:1.5px solid rgba(255,138,168,.4);color:#ffb3c6;font-size:17px;font-weight:700;letter-spacing:1px;}
 .pad.active{filter:brightness(1.6);}
+#faceBtn{position:fixed;left:50%;top:44%;transform:translateX(-50%);z-index:5;padding:11px 18px;font-family:inherit;font-size:15px;font-weight:600;color:#7ff0d8;background:rgba(127,240,216,.12);border:1.5px solid rgba(127,240,216,.4);border-radius:14px;cursor:pointer;backdrop-filter:blur(2px);}
+#faceBtn:active{filter:brightness(1.5);}
 #hint{position:fixed;left:0;right:0;bottom:calc(30vh + 6px);text-align:center;font-size:12px;color:rgba(255,255,255,.4);pointer-events:none;}
 </style>
 </head>
 <body>
 <div id="app"><canvas id="cv"></canvas></div>
+<button id="faceBtn">📷 your face</button>
+<input id="faceInput" type="file" accept="image/*" style="display:none">
 <div id="hint">hold left pad ◀ ▶ to walk · tap JUMP</div>
 <div id="controls">
   <div id="move" class="pad"><span class="arrow la">◀</span><span class="divider"></span><span class="arrow ra">▶</span></div>
@@ -51,6 +55,32 @@ const KEY='trolljump:save';
 let save={deaths:0,best:1};
 try{const s=localStorage.getItem(KEY);if(s)save=JSON.parse(s);}catch(e){}
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(save));}catch(e){}}
+
+// ---- custom face photo ----
+const FACEKEY='trolljump:face';
+let faceImg=null;
+function faceReady(){return faceImg&&faceImg.complete&&faceImg.naturalWidth>0;}
+(function(){try{const d=localStorage.getItem(FACEKEY);if(d){faceImg=new Image();faceImg.src=d;}}catch(e){}})();
+function setFaceFromFile(file){
+  if(!file)return;
+  const rd=new FileReader();
+  rd.onload=function(){
+    const im=new Image();
+    im.onload=function(){
+      const S=150,oc=document.createElement('canvas');oc.width=S;oc.height=S;
+      const o=oc.getContext('2d');
+      const r=Math.min(im.width,im.height);
+      o.drawImage(im,(im.width-r)/2,(im.height-r)/2,r,r,0,0,S,S);
+      const data=oc.toDataURL('image/jpeg',0.85);
+      try{localStorage.setItem(FACEKEY,data);}catch(e){}
+      faceImg=new Image();faceImg.src=data;
+    };
+    im.src=rd.result;
+  };
+  rd.readAsDataURL(file);
+}
+document.getElementById('faceBtn').addEventListener('click',function(){document.getElementById('faceInput').click();});
+document.getElementById('faceInput').addEventListener('change',function(e){setFaceFromFile(e.target.files&&e.target.files[0]);});
 
 // ---- input ----
 const key={l:false,r:false};
@@ -168,6 +198,13 @@ function guy(gx,gy,sc,dead,face,walk,onG){
   ctx.beginPath();ctx.moveTo(0,-2);ctx.lineTo(8,5+(sc?-12:-as));ctx.stroke();
   ctx.strokeStyle='#9fd0ff';ctx.beginPath();ctx.moveTo(0,-2);ctx.lineTo(0,8);ctx.stroke();
   ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,-12,12,0,7);ctx.fill();
+  if(faceReady()){
+    ctx.save();
+    ctx.beginPath();ctx.arc(0,-12,11,0,7);ctx.clip();
+    ctx.drawImage(faceImg,-12,-24,24,24);
+    ctx.restore();
+    ctx.lineWidth=1.4;ctx.strokeStyle='#cfe8ff';ctx.beginPath();ctx.arc(0,-12,11.4,0,7);ctx.stroke();
+  } else {
   ctx.fillStyle='#0d0a1f';
   const es=sc?6:3.6;
   ctx.beginPath();ctx.arc(-4,-13,es,0,7);ctx.fill();
@@ -181,6 +218,7 @@ function guy(gx,gy,sc,dead,face,walk,onG){
   ctx.fillStyle='#ff9ec4';
   ctx.beginPath();ctx.arc(-8,-8,2.3,0,7);ctx.fill();
   ctx.beginPath();ctx.arc(8,-8,2.3,0,7);ctx.fill();
+  }
   ctx.restore();
 }
 
@@ -284,7 +322,8 @@ function draw(){
   ctx.restore();
 }
 
-function loop(){update();draw();requestAnimationFrame(loop);}
+const faceBtnEl=document.getElementById('faceBtn');
+function loop(){update();draw();faceBtnEl.style.display=(state==='menu')?'block':'none';requestAnimationFrame(loop);}
 fit();spawn();traps=[];particles=[];tick=0;shakeT=0;banner='';bannerT=0;state='menu';
 loop();
 </script>
