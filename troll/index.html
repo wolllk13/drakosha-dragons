@@ -123,7 +123,7 @@ function buildLevel(L){
     px+=120+r()*90;
   }
 }
-function spawn(){p={x:50,y:GND-22,vx:0,vy:0,onG:true,scared:0,dead:false,deadT:0,face:1,walk:0};cam=0;chaser={x:p.x-240,y:GND-15,walk:0};}
+function spawn(){p={x:50,y:GND-22,vx:0,vy:0,onG:true,scared:0,dead:false,deadT:0,face:1,walk:0};cam=0;chaser={x:p.x-240,y:GND-15,walk:0,face:1};}
 function startLevel(L,resetDeaths){
   level=L;if(resetDeaths)save.deaths=0;
   spawn();particles=[];tick=0;shakeT=0;banner='LEVEL '+L;bannerT=70;
@@ -187,12 +187,14 @@ function update(){
   if(p.onG&&Math.abs(p.vx)>1.4&&tick%4===0)particles.push({x:p.x-p.face*7,y:GND-2,vx:-p.face*1.1+(Math.random()-.5),vy:-Math.random()*1.4,life:16,c:'rgba(180,150,170,0.45)'});
   if(p.scared>0)p.scared--;
 
-  // chaser — runs in from behind and catches up
+  // chaser — always heads toward the hero; turns around if you jump over it
   if(chaser){
     const chSpeed=2.0+level*0.05;
-    chaser.x+=chSpeed;chaser.walk+=0.4;
-    if(p.x-chaser.x<60)p.scared=Math.max(p.scared,6);
-    if(chaser.x>p.x-12)caughtByChaser();
+    const dir=p.x>chaser.x?1:-1;
+    chaser.x+=chSpeed*dir;chaser.face=dir;chaser.walk+=0.4;
+    const dx=Math.abs(p.x-chaser.x), dy=Math.abs(p.y-chaser.y);
+    if(dx<66)p.scared=Math.max(p.scared,6);
+    if(dx<19&&dy<24)caughtByChaser(); // die only on real contact
   }
 
   if(p.x>goalX){state='win';if(level>=save.best)save.best=level;persist();
@@ -251,27 +253,48 @@ function guy(gx,gy,sc,dead,face,walk,onG){
   ctx.restore();
 }
 
-function chaserDraw(cx,cy,walk){
+function chaserDraw(cx,cy,walk,face){
   ctx.save();ctx.translate(cx,cy);
-  // tail in front (leaning toward the prey)
-  ctx.strokeStyle='#ff5a7a';ctx.lineWidth=4;ctx.lineCap='round';
-  ctx.beginPath();ctx.moveTo(8,3);ctx.quadraticCurveTo(22,Math.sin(walk)*5,17,-13);ctx.stroke();
-  // legs
-  ctx.strokeStyle='#c0364f';ctx.lineWidth=3.6;
-  const cl1=Math.max(0,Math.sin(walk))*6, cl2=Math.max(0,-Math.sin(walk))*6;
-  ctx.beginPath();ctx.moveTo(-3,7);ctx.lineTo(-3,15-cl1);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(3,7);ctx.lineTo(3,15-cl2);ctx.stroke();
-  // body
-  ctx.fillStyle='#ff5a7a';ctx.beginPath();ctx.ellipse(0,-2,11,13,0,0,7);ctx.fill();
-  ctx.fillStyle='#ffd0db';ctx.beginPath();ctx.ellipse(-1,3,5,7,0,0,7);ctx.fill();
-  // angry eyes
-  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(-4,-6,3.6,0,7);ctx.fill();ctx.beginPath();ctx.arc(4,-6,3.6,0,7);ctx.fill();
-  ctx.fillStyle='#0d0a1f';ctx.beginPath();ctx.arc(-3,-6,1.9,0,7);ctx.fill();ctx.beginPath();ctx.arc(5,-6,1.9,0,7);ctx.fill();
-  ctx.strokeStyle='#7a1226';ctx.lineWidth=2.2;
-  ctx.beginPath();ctx.moveTo(-8,-11);ctx.lineTo(-1,-8);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(8,-11);ctx.lineTo(1,-8);ctx.stroke();
-  // snarl
-  ctx.fillStyle='#0d0a1f';ctx.beginPath();ctx.arc(0,2,2.8,0,7);ctx.fill();
+  if(face<0)ctx.scale(-1,1);
+  ctx.lineCap='round';
+  const l1=Math.max(0,Math.sin(walk))*5, l2=Math.max(0,-Math.sin(walk))*5, reach=Math.sin(walk)*2;
+  // feet + legs
+  ctx.fillStyle='#7a1f3a';
+  ctx.beginPath();ctx.ellipse(-4,15-l1,4.5,2.6,0,0,7);ctx.fill();
+  ctx.beginPath();ctx.ellipse(4,15-l2,4.5,2.6,0,0,7);ctx.fill();
+  ctx.strokeStyle='#b03a56';ctx.lineWidth=4;
+  ctx.beginPath();ctx.moveTo(-3,7);ctx.lineTo(-4,14-l1);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(3,7);ctx.lineTo(4,14-l2);ctx.stroke();
+  // clawed arms reaching
+  ctx.strokeStyle='#b03a56';ctx.lineWidth=3.4;
+  ctx.beginPath();ctx.moveTo(-6,-2);ctx.lineTo(-11,2-reach);ctx.stroke();
+  ctx.fillStyle='#8a2f52';ctx.beginPath();ctx.arc(-11,2-reach,2.2,0,7);ctx.fill();
+  ctx.strokeStyle='#b03a56';ctx.beginPath();ctx.moveTo(6,-2);ctx.lineTo(13,1+reach);ctx.stroke();
+  ctx.fillStyle='#8a2f52';ctx.beginPath();ctx.arc(13,1+reach,2.6,0,7);ctx.fill();
+  // round body + belly
+  const bg=ctx.createLinearGradient(0,-9,0,9);bg.addColorStop(0,'#c94f7a');bg.addColorStop(1,'#8a2f52');
+  ctx.fillStyle=bg;ctx.beginPath();ctx.ellipse(0,-1,12,13,0,0,7);ctx.fill();
+  ctx.fillStyle='rgba(255,210,225,0.45)';ctx.beginPath();ctx.ellipse(0,3,6,7,0,0,7);ctx.fill();
+  // horns
+  ctx.fillStyle='#ffd7a8';
+  ctx.beginPath();ctx.moveTo(-7,-11);ctx.lineTo(-10,-20);ctx.lineTo(-3,-13);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(7,-11);ctx.lineTo(10,-20);ctx.lineTo(3,-13);ctx.closePath();ctx.fill();
+  // head
+  ctx.fillStyle='#c94f7a';ctx.beginPath();ctx.arc(0,-10,9,0,7);ctx.fill();
+  // glowing eyes
+  ctx.fillStyle='#fff2a0';
+  ctx.beginPath();ctx.arc(-3.5,-11,3,0,7);ctx.fill();ctx.beginPath();ctx.arc(3.5,-11,3,0,7);ctx.fill();
+  ctx.fillStyle='#3a0d18';
+  ctx.beginPath();ctx.arc(-3,-11,1.4,0,7);ctx.fill();ctx.beginPath();ctx.arc(4,-11,1.4,0,7);ctx.fill();
+  // angry brows
+  ctx.strokeStyle='#5a1226';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(-7.5,-15);ctx.lineTo(-1,-12);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(7.5,-15);ctx.lineTo(1,-12);ctx.stroke();
+  // fanged mouth
+  ctx.fillStyle='#3a0d18';ctx.beginPath();ctx.ellipse(0,-6,3.4,2.2,0,0,7);ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.beginPath();ctx.moveTo(-2,-7);ctx.lineTo(-1,-4);ctx.lineTo(-3,-6.5);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(2,-7);ctx.lineTo(1,-4);ctx.lineTo(3,-6.5);ctx.closePath();ctx.fill();
   ctx.restore();
 }
 function floorTopY(x){return GND-2+Math.sin((x+cam)*0.07)*2.5+Math.sin((x+cam)*0.021)*3.2;}
@@ -372,7 +395,7 @@ function draw(){
   for(const a of particles){ctx.globalAlpha=Math.max(0,a.life/45);ctx.fillStyle=a.c;ctx.fillRect(a.x-cam-2,a.y-2,4,4);}
   ctx.globalAlpha=1;
 
-  if((state==='play'||state==='caught')&&chaser)chaserDraw(chaser.x-cam,chaser.y,chaser.walk);
+  if((state==='play'||state==='caught')&&chaser)chaserDraw(chaser.x-cam,chaser.y,chaser.walk,chaser.face||1);
 
   if(state!=='win'||tick%6<4)guy(p.x-cam,p.y,p.scared,p.dead,p.face,p.walk,p.onG);
 
